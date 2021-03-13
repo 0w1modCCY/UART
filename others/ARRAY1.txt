@@ -1,0 +1,92 @@
+#Set R1 to initial position 0x0100
+#
+#LDIL R1 0x00
+#ORIH R1 0x01
+#
+1110010000000000    0000: E400  LDIL R1 0x00;
+1110010000000110    0001: E406  ORIH R1 0x01;
+#
+#Save the memory on position 0x0100 to R2
+#Then R2 is the number of given numbers to evaluate.
+#
+#LD R2 R1 R0
+#
+0010100010000000    0002: 2880  LD R2 R1 R0; 
+#
+#Declare and initializethe "MAX" variable,
+#place to save the maximumvalue found until the moment.
+#
+#XOR R3 R3 R3
+1000110110110011    0003: 8DB3  XOR R3 R0 R0;
+#
+#Last memory position to evaluate, is given by the sum 
+#of the initial position and the length of the given array.
+#In other words, R1 + R2
+#
+#LD R4 R1 R2
+#
+0011000010100000    0004: 1850  LD R4 R1 R2;
+#
+#Copy of R2, to be substracting and know how many numbers
+#left do we have to evaluate after each iteration of the loop.
+#
+#OR R5 R2 R2
+#
+1001010100100001    0005: 9521  OR R5 R2 R2;  
+#
+#Start of the loop
+#If R5 == R0 then there are no more values to evaluate so
+#displace to the next position after the end of the loop.
+#In other case, get into the loop.
+#BRANCH R5 == R0 +5
+#OR R5 R5 R5
+#BZ 5
+#
+1001011011010001    0006: 96D1  OR R5 R5 R5;
+#
+#We did a copy of R5 in R5 because the logical instructions
+#can activate the ZNVC if CondHold is activate.
+#
+1100000001010001    0007: C051  BZ 5;
+#
+#Increment the pointer
+#ADDIX R5 1
+#
+1111010000000111    0007: F407 ADDIX R5 1;
+#
+#Save the data of the pointer R5 in R6 to evaluate the data
+#of the memory position, without losing the memory position.
+#LD R6 R5 R0
+#
+0011101010000000    0008: 3A80 LD R6 R5 R0;
+#
+#If R6 <= R3 then go to the beginning of the loop again.
+#In other case, continue. (R3 < R6)
+#OR R6 R6 R3
+#
+H E L P     H E R E     P L E A S E
+#
+#Save the DATA of R6 on R3
+#ST R3 R6 R0
+#
+
+#
+#Go back to the beginning of the loop
+#BNZ -5
+#
+
+#
+#The data on R3 is the solution to thsi problem.
+#STOP
+#
+
+
+
+
+
+
+
+
+
+
+

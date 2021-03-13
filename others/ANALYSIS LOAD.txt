@@ -1,0 +1,117 @@
+ANALYSIS LOAD instruction
+
+LD rD, rS1, rS2
+We obtain in a destination register rD, the value that is in the direccion of rS1 with a displacement rS2(data) ot #0(direction).
+
+Doing the example proposed at load.txt
+
+1110011000000000
+OpCode    > 111   > IMMOCODE
+DReg      > 001   > Register 1(R1)
+IMMEDIATE > 10000000
+TYPE      > 00    > LDIL
+
+Since it is LDIL, the result would be
+DReg(R1) <= 0000000010000000 BIN = 128 DEC = 0x0080 HEX
+
+Now we have the value saved at the R1 (register 1),
+lets try the LOAD instruction:
+We save in R2 the value that is in the position 128 of the External Memory.
+
+0010100010000000
+OpCode    > 001   > LOADCODE
+DReg      > 010   > Register 2 (R2)
+SReg1     > 001   > Register 1 (R1)
+SReg2     > 000   > Register 0 (R0)
+OpCodeExt > 0000  > No variants
+
+DReg(R2) <= Memory[SReg1 + SReg2]
+DReg(R2) <= Memory[128 + 0]
+DReg(R2) <= Memory[128]
+DReg(R2) <= 0001001000110100 BIN = 4660 DEC = 0x1234 HEX
+
+As far as we know of our External Memory:
+0000 | 1110011000000000    
+0001 | 0010100010000000    
+0002 | 0000000000000000
+0003 | 0000000000000000
+...   
+0079 | 0000000000000000
+0080 | 0001001000110100    
+0081 | 0000000000000000  
+...
+9999 | 0000000000000000
+
+Our Bank Register:
+R0 | 0000000000000000
+R1 | 0000000000000001
+R2 | 0000000000000010
+R3 | 0000000000000000
+R4 | 0000000000000000
+R5 | 0000000000000000
+R6 | 0000000000000000
+R7 | 0000000000000000
+
+Signals analysis:
+
+- - Initial - -
+EnablePC = 1
+EnableALU = 1
+LoadMAR = 1
+ALUcontrol = PASS_A
+PCop <= INCRPC
+
+- - ReadInst - -
+ReadMem = 1
+DriveCPU = 1
+LoasIReg = 1
+once mhold = 1
+
+- - Execution - -
+EnableImmed = 1
+Dest <= DReg
+EnableALU = 1
+ALUcontrol = PASS_B --OpCodeExt = 00 = LDIL
+--We let B pass because we don't have to do any
+--aritmethic or logic operation over it.
+--Also BusB is were we have the Dest value
+LoadDest = 1 --we save it on the register's bank
+
+- - Initial - -
+EnablePC = 1
+EnableALU = 1
+LoadMAR = 1
+ALUcontrol = PASS_A
+PCop <= INCRPC
+
+- - ReadInst - -
+ReadMem = 1
+DriveCPU = 1
+LoasIReg = 1
+once mhold = 1
+
+- - Execution - -
+SourceA <= SReg1;  --First value for the memory position is given by the register at SReg1 (R1)
+EnableA = '1'; --Confirmation
+SourceB <= SReg2;  --Second value for the momery position is given by the register at SReg2 (R)  
+EnableB = '1'; --Confirmation
+EnableALU = '1'; --Confirmation to write in Busd
+ALUcontrol = ALU_ADD; --128 + 0
+LoadMAR = 1; --We save the value 128 + 0 in the MAR because is the memory address we will be accesing in a few ns
+Dest <= DReg; --Dest of accesing to memoery has to be saved in the register mentioned by DReg (R2)
+LoadDest = '1'; --Loading the register R2
+
+
+- - ReadData - -
+ReadMem = '1';
+DriveCPU = '1';
+LoadDest = '1';
+when mhold = 1
+
+- - Initial - -
+
+
+
+
+
+
